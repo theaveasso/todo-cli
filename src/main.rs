@@ -27,9 +27,5 @@ fn main() {
         } else {
             println!("{}: ({}: to add, {}: to read, {}: to exit the program)", "hint".purple(), write.green(), read.yellow(), quit.red());
             continue;
-        }
-
-    };
-}
-
-
+        };
+    }
