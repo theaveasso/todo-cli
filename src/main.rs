@@ -1,5 +1,11 @@
 use std::io;
+use chrono;
 use colored::Colorize;
+
+struct TDItem {
+    todo: String,
+    done: String
+}
 
 fn main() {
     let write = String::from("write");
@@ -21,7 +27,7 @@ fn main() {
         if todo.eq(&quit) {
             break;
         } else if todo.eq(&write) {
-            println!("test write");
+            write_list()
         } else if todo.eq(&read) {
             println!("test read");
         } else {
@@ -29,3 +35,37 @@ fn main() {
             continue;
         };
     }
+}
+
+// write function
+// adding list to a Todo item
+fn td_append(s: String) -> TDItem {
+    TDItem { todo: s, done: String::from("[ ]") }
+}
+// collect user input than add to to do list
+fn write_list(){
+    let stop = String::from('n');
+
+    loop {
+        println!("      L --continue: {}", "[n]".red());
+        let mut done = String::new();
+        
+        // BUGS println!("    -Todo item:"); FIXED
+        io::stdin()
+           .read_line(&mut done)
+           .expect("Failed to read lines");
+        let done = done.trim();
+
+        // check if the user is done adding
+        if done.eq(&stop){
+            println!("  L --{}  L --{}  L --{}","write".green(), 
+                                                "read".yellow(), 
+                                                "quit".red());
+            break;
+        } else {
+            let todo = done.trim();
+            td_append(String::from(todo));
+        }
+       
+    }
+}
