@@ -16,6 +16,7 @@ impl TDList {
     fn remove(&mut self, idx: usize) {
         self.items.remove(idx);
     }
+
     fn mark_done(&mut self, idx: usize){
         if self.items[idx].done == ' '{
             self.items[idx].done = 'x';
@@ -24,7 +25,6 @@ impl TDList {
             self.items[idx].done = ' ';
         }
     }
-
 
     fn print(&self) {
         for (idx, item) in self.items.iter().enumerate() {
@@ -65,11 +65,16 @@ fn main() {
     };
     // let todo_item = TDItem::new("Make todo app with Rust🦀".to_string());
     let mut todo_list = TDList::new();
-    todo_list.append("Make todo app with Rust🦀".to_string());
-    todo_list.append("Improve visualization adding color".to_string());
+    todo_list.append("Make todo app with Rust🦀 v-1.2".to_string());
     todo_list.append("Build an application".to_string());
+    todo_list.append("Improve visualization adding color".to_string());
+    todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string());
+    todo_list.append("Implement a comman for changing the task description".to_string());
+    todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string());
     todo_list.append("Push task data to a todo.data".to_string());
     todo_list.mark_done(0);
+    todo_list.mark_done(1);
+
     
 
 
