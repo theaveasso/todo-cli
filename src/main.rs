@@ -13,16 +13,30 @@ impl TDList {
         self.items.push(item);
     }
 
+    fn remove(&mut self, idx: usize) {
+        self.items.remove(idx);
+    }
+    fn mark_done(&mut self, idx: usize){
+        if self.items[idx].done == ' '{
+            self.items[idx].done = 'x';
+            // change color to green
+        } else {
+            self.items[idx].done = ' ';
+        }
+    }
+
+
     fn print(&self) {
-        for item in &self.items {
-            println!("[{}] - {}", item.done, item.todo)
+        for (idx, item) in self.items.iter().enumerate() {
+            println!("{} [{}] - {}", idx, item.done, item.todo)
         }
     }
     
 }
+
 struct TDItem {
     done: char,
-    todo: String
+    todo: String,
 }
 impl  TDItem {
     fn new(todo: String) -> TDItem {
@@ -31,14 +45,47 @@ impl  TDItem {
     
 }
 
+enum Command {
+    Get,
+    Add(String),
+    Done(usize),
+    Remove(usize)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let cmd = &args[1];
+
+    let cmd = match args[1].as_str() {
+        "get" => Command::Get,
+        "add" => Command::Add(args[2].clone()),
+        "done" => Command::Done(args[2].parse().expect("Error converting to Interger")),
+        "remove" => Command::Remove(args[2].parse().expect("Error converting to Interger")),
+        _ => panic!("You must provide an accepted command!")
+        
+    };
     // let todo_item = TDItem::new("Make todo app with Rust🦀".to_string());
     let mut todo_list = TDList::new();
     todo_list.append("Make todo app with Rust🦀".to_string());
+    todo_list.append("Improve visualization adding color".to_string());
+    todo_list.append("Build an application".to_string());
+    todo_list.append("Push task data to a todo.data".to_string());
+    todo_list.mark_done(0);
+    
 
-    if cmd == "get" {
-        todo_list.print()
+
+    match cmd {
+        Command::Get => todo_list.print(),
+        Command::Add(todo) => {
+            todo_list.append(todo.to_string());
+            todo_list.print()
+        },
+        Command::Done(idx) => {
+            todo_list.mark_done(idx);
+            todo_list.print()
+        },
+        Command::Remove(idx) => {
+            todo_list.remove(idx);
+            todo_list.print()  
+        }
     }
 }
