@@ -1,7 +1,7 @@
 use std::io;
 use std::env;
+use colored::ColoredString;
 use colored::Colorize;
-
 
 struct TDList {
     items: Vec<TDItem>
@@ -11,8 +11,8 @@ impl TDList {
         TDList { items: Vec::new() }
     }
 
-    fn append(&mut self, todo: String) {
-        let item = TDItem::new(todo);
+    fn append(&mut self, todo: String, p_level: usize) {
+        let item = TDItem::new(todo, p_level);
         self.items.push(item);
     }
 
@@ -37,9 +37,9 @@ impl TDList {
         println!("{}", "Tasks:".yellow());
         for (idx, item) in self.items.iter().enumerate() {
             if self.items[idx].done == 'x' {
-                println!("{} [{}] - {}", idx, item.done, item.todo.truecolor(50, 50, 50));
+                println!("{} {} -- [{}] - {}", idx,item.prio.level, item.done, item.todo.truecolor(50, 50, 50));
             } else {
-                println!("{} [{}] - {}", idx, item.done, item.todo);
+                println!("{} {} -- [{}] - {}", idx,item.prio.level, item.done, item.todo);
                 
             }
         }
@@ -50,11 +50,29 @@ impl TDList {
 struct TDItem {
     done: char,
     todo: String,
-    prio: u8
+    prio: Priority
 }
 impl  TDItem {
-    fn new(todo: String) -> TDItem {
-        TDItem { done: ' ', todo, prio:2}
+    fn new(todo: String, prio:usize) -> TDItem {
+        let p_level = Priority::new(prio);
+        TDItem { done: ' ', todo, prio: Priority{level:p_level}}
+    }
+    
+}
+
+#[derive(Debug)]
+struct Priority {
+    level: ColoredString
+}
+impl Priority {
+    fn new(level: usize) -> ColoredString {
+        let p_level = match level {
+            1 => "high".red(),
+            2 => "medium".purple(),
+            3 => "low".blue(),
+            _ => "no priority".white()
+        };
+        return p_level;
     }
     
 }
@@ -62,7 +80,7 @@ impl  TDItem {
 enum CommandArgs {
     Get,
     Todo,
-    Add(String),
+    Add(String, usize),
     Done(usize),
     Remove(usize),
     Update(usize, String),
@@ -81,14 +99,12 @@ enum  Command {
 
 
 fn main() {
-    // color 
-    let grey = 50;
     let args: Vec<String> = env::args().collect();
 
     let cmd = match args[1].as_str() {
         "get" => CommandArgs::Get,
         "todo" => CommandArgs::Todo,
-        "add" => CommandArgs::Add(args[2].clone()),
+        "add" => CommandArgs::Add(args[2].clone(), args[3].parse().unwrap()),
         "done" => CommandArgs::Done(args[2].parse().expect("Error converting to Interger")),
         "remove" => CommandArgs::Remove(args[2].parse().expect("Error converting to Interger")),
         "update" => CommandArgs::Update(args[2].parse().unwrap(), args[3].clone()),
@@ -98,13 +114,13 @@ fn main() {
 
     // let todo_item = TDItem::new("Make todo app with Rust🦀".to_string());
     let mut todo_list = TDList::new();
-    todo_list.append("Make todo app with Rust🦀 v-1.2".to_string());
-    todo_list.append("Build an application".to_string());
-    todo_list.append("Improve visualization adding color".to_string());
-    todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string());
-    todo_list.append("Implement a command for changing the task description".to_string());
-    todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string());
-    todo_list.append("Implement a Push task data to a todo.data".to_string());
+    todo_list.append("Make todo app with Rust🦀 v-1.2".to_string(), 3);
+    todo_list.append("Build an application".to_string(), 1);
+    todo_list.append("Improve visualization adding color".to_string(), 2);
+    todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string(), 3);
+    todo_list.append("Implement a command for changing the task description".to_string(), 2);
+    todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string(), 2);
+    todo_list.append("Implement a Push task data to a todo.data".to_string(), 3);
     
     // done 
     todo_list.mark_done(0);
@@ -118,8 +134,8 @@ fn main() {
     
     match cmd {
         CommandArgs::Get => todo_list.print(),
-        CommandArgs::Add(todo) => {
-            todo_list.append(todo.to_string());
+        CommandArgs::Add(todo, p_level) => {
+            todo_list.append(todo.to_string(), p_level);
             todo_list.print()
         },
         CommandArgs::Done(idx) => {
@@ -155,11 +171,25 @@ fn main() {
                         loop {
                             print_header("add");
                             println!("{} / {}", "-[ ] add task".yellow(), "-n".red());
+                            println!("{} 1 - 🟥{}    2 - 🟪{}    3 - 🟦{}   4 - ⬜️{}", "Priority Level:".yellow()
+                                                                     , "high".red()
+                                                                     , "meduim".purple()
+                                                                     , "low".blue()
+                                                                     , "no priority");
+                            let p_level = input().parse().unwrap();
+
+                            println!("{}", "task:".yellow());
                             let todo = input();
-                            if todo == 'n'.to_string() {
+
+                            // ask if the use want to continue adding todo
+                            println!("{} / {}", "-y continue".yellow(), "-n".red());
+                            let continue_adding = input();
+                            if continue_adding == 'n'.to_string() {
                                break;
                             }
-                            todo_list.append(todo);
+
+                            // push to vector
+                            todo_list.append(todo, p_level);
                             todo_list.print()
                         }
                     }
