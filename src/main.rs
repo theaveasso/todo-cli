@@ -81,6 +81,8 @@ enum  Command {
 
 
 fn main() {
+    // color 
+    let grey = 50;
     let args: Vec<String> = env::args().collect();
 
     let cmd = match args[1].as_str() {
@@ -145,9 +147,14 @@ fn main() {
                 let cmd = cmd_from_user(input());
 
                 match cmd {
-                    Command::Get => todo_list.print(),
+                    Command::Get => {
+                        print_header("get");
+                        todo_list.print();
+                    }
                     Command::Add => {
                         loop {
+                            print_header("add");
+                            println!("{} / {}", "-[ ] add task".yellow(), "-n".red());
                             let todo = input();
                             if todo == 'n'.to_string() {
                                break;
@@ -158,7 +165,9 @@ fn main() {
                     }
                     Command::Done => {
                         loop {
+                            print_header("done");
                             todo_list.print();
+                            println!("{} / {}", "-[ ] task index".yellow(), "-n".red());
                             let mut _idex = input();
                             if _idex != 'n'.to_string() {
                                 let idx: usize = _idex.parse().unwrap();
@@ -173,7 +182,9 @@ fn main() {
                     Command::Quit => break,
                     Command::Remove => {
                         loop {
+                            print_header("remove");
                             todo_list.print();
+                            println!("{} / {}", "-[ ] task index".yellow(), "-n".red());
                             let mut _idex = input();
                             if _idex != 'n'.to_string() {
                                 let idx: usize = _idex.parse().unwrap();
@@ -186,13 +197,15 @@ fn main() {
                     },
                     Command::Update => {
                         loop {
+                            print_header("update");
                             todo_list.print();
-                            println!("Task index or press [n] to back to main program");
+                            println!("{} / {}", "-[ ] task index".yellow(), "-n".red());
                             let mut _idex = input();
 
                             if _idex != 'n'.to_string() {
+                                // break if user not input the interger
                                 let idx: usize = _idex.parse().unwrap();
-                                println!("Update to: ");
+                                println!("{}", "-[ ] update to:".yellow());
                                 let todo = input();
                                 todo_list.update(idx, todo);
 
@@ -208,6 +221,10 @@ fn main() {
             }
         },
     }
+}
+
+fn print_header(s: &str) {
+    println!("    L --{} ",s.purple());
 }
 
 fn input() -> String{
