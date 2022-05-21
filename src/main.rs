@@ -1,4 +1,7 @@
+use std::io;
 use std::env;
+use colored::Colorize;
+
 
 struct TDList {
     items: Vec<TDItem>
@@ -17,6 +20,10 @@ impl TDList {
         self.items.remove(idx);
     }
 
+    fn update(&mut self, idx: usize, todo: String) {
+        self.items[idx].todo = todo;
+    }
+
     fn mark_done(&mut self, idx: usize){
         if self.items[idx].done == ' '{
             self.items[idx].done = 'x';
@@ -27,8 +34,14 @@ impl TDList {
     }
 
     fn print(&self) {
+        println!("{}", "Tasks:".yellow());
         for (idx, item) in self.items.iter().enumerate() {
-            println!("{} [{}] - {}", idx, item.done, item.todo)
+            if self.items[idx].done == 'x' {
+                println!("{} [{}] - {}", idx, item.done, item.todo.truecolor(50, 50, 50));
+            } else {
+                println!("{} [{}] - {}", idx, item.done, item.todo);
+                
+            }
         }
     }
     
@@ -37,60 +50,186 @@ impl TDList {
 struct TDItem {
     done: char,
     todo: String,
+    prio: u8
 }
 impl  TDItem {
     fn new(todo: String) -> TDItem {
-        TDItem { done: ' ', todo }
+        TDItem { done: ' ', todo, prio:2}
     }
     
 }
 
-enum Command {
+enum CommandArgs {
     Get,
+    Todo,
     Add(String),
     Done(usize),
-    Remove(usize)
+    Remove(usize),
+    Update(usize, String),
+
 }
+
+enum  Command {
+    Get,
+    Add,
+    Done,
+    Quit,
+    Remove,
+    Update,
+    Invalid,
+}
+
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let cmd = match args[1].as_str() {
-        "get" => Command::Get,
-        "add" => Command::Add(args[2].clone()),
-        "done" => Command::Done(args[2].parse().expect("Error converting to Interger")),
-        "remove" => Command::Remove(args[2].parse().expect("Error converting to Interger")),
+        "get" => CommandArgs::Get,
+        "todo" => CommandArgs::Todo,
+        "add" => CommandArgs::Add(args[2].clone()),
+        "done" => CommandArgs::Done(args[2].parse().expect("Error converting to Interger")),
+        "remove" => CommandArgs::Remove(args[2].parse().expect("Error converting to Interger")),
+        "update" => CommandArgs::Update(args[2].parse().unwrap(), args[3].clone()),
         _ => panic!("You must provide an accepted command!")
-        
+
     };
+
     // let todo_item = TDItem::new("Make todo app with Rust🦀".to_string());
     let mut todo_list = TDList::new();
     todo_list.append("Make todo app with Rust🦀 v-1.2".to_string());
     todo_list.append("Build an application".to_string());
     todo_list.append("Improve visualization adding color".to_string());
     todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string());
-    todo_list.append("Implement a comman for changing the task description".to_string());
+    todo_list.append("Implement a command for changing the task description".to_string());
     todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string());
-    todo_list.append("Push task data to a todo.data".to_string());
+    todo_list.append("Implement a Push task data to a todo.data".to_string());
+    
+    // done 
     todo_list.mark_done(0);
     todo_list.mark_done(1);
+    todo_list.mark_done(2);
+    todo_list.mark_done(3);
+    todo_list.mark_done(4);
+ 
+
 
     
-
-
     match cmd {
-        Command::Get => todo_list.print(),
-        Command::Add(todo) => {
+        CommandArgs::Get => todo_list.print(),
+        CommandArgs::Add(todo) => {
             todo_list.append(todo.to_string());
             todo_list.print()
         },
-        Command::Done(idx) => {
+        CommandArgs::Done(idx) => {
             todo_list.mark_done(idx);
             todo_list.print()
         },
-        Command::Remove(idx) => {
+        CommandArgs::Remove(idx) => {
             todo_list.remove(idx);
             todo_list.print()  
-        }
+        },
+        CommandArgs::Update(idx, todo) => {
+            todo_list.update(idx, todo);
+            todo_list.print()
+        },
+        CommandArgs::Todo => {
+            println!("Rust🦀 todo app");
+            loop {
+                println!("    L --{}    L --{}    L --{}    L --{}    L --{}    L --{}",
+                        "get".green(),
+                        "add".green(),
+                        "done".green(),
+                        "remove".green(),
+                        "update".green(),
+                        "quit".red());
+                let cmd = cmd_from_user(input());
+
+                match cmd {
+                    Command::Get => todo_list.print(),
+                    Command::Add => {
+                        loop {
+                            let todo = input();
+                            if todo == 'n'.to_string() {
+                               break;
+                            }
+                            todo_list.append(todo);
+                            todo_list.print()
+                        }
+                    }
+                    Command::Done => {
+                        loop {
+                            todo_list.print();
+                            let mut _idex = input();
+                            if _idex != 'n'.to_string() {
+                                let idx: usize = _idex.parse().unwrap();
+                                todo_list.mark_done(idx);
+                                todo_list.print();
+
+                            } else if _idex.to_string() == 'n'.to_string() {
+                                break
+                            }
+                        }
+                    },
+                    Command::Quit => break,
+                    Command::Remove => {
+                        loop {
+                            todo_list.print();
+                            let mut _idex = input();
+                            if _idex != 'n'.to_string() {
+                                let idx: usize = _idex.parse().unwrap();
+                                todo_list.remove(idx);
+
+                            } else if _idex.to_string() == 'n'.to_string() {
+                                break
+                            }
+                        }
+                    },
+                    Command::Update => {
+                        loop {
+                            todo_list.print();
+                            println!("Task index or press [n] to back to main program");
+                            let mut _idex = input();
+
+                            if _idex != 'n'.to_string() {
+                                let idx: usize = _idex.parse().unwrap();
+                                println!("Update to: ");
+                                let todo = input();
+                                todo_list.update(idx, todo);
+
+                            } else if _idex.to_string() == 'n'.to_string() {
+                                break
+                            }
+                            // BUG N IS LARGER THAN LEN OF LIST
+                        }
+                    },
+                    Command::Invalid => todo_list.print(),
+                }
+
+            }
+        },
     }
+}
+
+fn input() -> String{
+    let mut msg = String::new();
+    io::stdin()
+        .read_line(&mut msg)
+        .expect("Failed to read lines");
+    
+    msg = msg.trim().to_string();
+    return msg;
+}
+
+fn cmd_from_user(s: String) -> Command {
+    let cmd = match s.as_str() {
+        "get" => Command::Get,
+        "add" => Command::Add,
+        "done" => Command::Done,
+        "quit" => Command::Quit,
+        "remove" => Command::Remove,
+        "update" => Command::Update,
+        _ => Command::Invalid
+
+    };
+    return cmd;
 }
