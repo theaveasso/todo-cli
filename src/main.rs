@@ -67,9 +67,9 @@ struct Priority {
 impl Priority {
     fn new(level: usize) -> ColoredString {
         let p_level = match level {
-            1 => "high".red(),
-            2 => "medium".purple(),
-            3 => "low".blue(),
+            1 => "high       ".red(),
+            2 => "medium     ".purple(),
+            3 => "low        ".blue(),
             _ => "no priority".white()
         };
         return p_level;
@@ -114,13 +114,13 @@ fn main() {
 
     // let todo_item = TDItem::new("Make todo app with Rust🦀".to_string());
     let mut todo_list = TDList::new();
-    todo_list.append("Make todo app with Rust🦀 v-1.2".to_string(), 3);
-    todo_list.append("Build an application".to_string(), 1);
-    todo_list.append("Improve visualization adding color".to_string(), 2);
-    todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string(), 3);
-    todo_list.append("Implement a command for changing the task description".to_string(), 2);
+    todo_list.append("Make todo app with Rust🦀 v-1.2".to_string(), 1);
+    todo_list.append("Build an application".to_string(), 2);
+    todo_list.append("Improve visualization adding color".to_string(), 3);
+    todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string(), 1);
+    todo_list.append("Implement a command for changing the task description".to_string(), 4);
     todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string(), 2);
-    todo_list.append("Implement a Push task data to a todo.data".to_string(), 3);
+    todo_list.append("Implement a Push task data to a todo.data".to_string(), 2);
     
     // done 
     todo_list.mark_done(0);
