@@ -119,8 +119,8 @@ fn main() {
     todo_list.append("Improve visualization adding color".to_string(), 3);
     todo_list.append("Implement a run a loop and ask the user for their comman every iteration".to_string(), 1);
     todo_list.append("Implement a command for changing the task description".to_string(), 4);
-    todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string(), 2);
-    todo_list.append("Implement a Push task data to a todo.data".to_string(), 2);
+    todo_list.append("Implement a custom sort command (Priority, Due date ...)".to_string(), 3);
+    todo_list.append("Implement a Save and Load Json file".to_string(), 1);
     
     // done 
     todo_list.mark_done(0);
@@ -129,8 +129,6 @@ fn main() {
     todo_list.mark_done(3);
     todo_list.mark_done(4);
  
-
-
     
     match cmd {
         CommandArgs::Get => todo_list.print(),
