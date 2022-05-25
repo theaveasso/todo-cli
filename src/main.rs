@@ -25,18 +25,22 @@ impl TDList {
     }
 
     fn mark_done(&mut self, idx: usize){
-        if self.items[idx].done == ' '{
-            self.items[idx].done = 'x';
+        if self.items[idx].done == " ".truecolor(50, 50, 50){
+            self.items[idx].done = "x".green();
             // change color to green
         } else {
-            self.items[idx].done = ' ';
+            self.items[idx].done = " ".truecolor(50, 50, 50);
         }
+    }
+
+    fn sorted(&self) {
+        println!("hello world");
     }
 
     fn print(&self) {
         println!("{}", "Tasks:".yellow());
         for (idx, item) in self.items.iter().enumerate() {
-            if self.items[idx].done == 'x' {
+            if self.items[idx].done == "x".green() {
                 println!("{} {} -- [{}] - {}", idx,item.prio.level, item.done, item.todo.truecolor(50, 50, 50));
             } else {
                 println!("{} {} -- [{}] - {}", idx,item.prio.level, item.done, item.todo);
@@ -48,14 +52,15 @@ impl TDList {
 }
 
 struct TDItem {
-    done: char,
+    done: ColoredString,
     todo: String,
     prio: Priority
 }
+
 impl  TDItem {
     fn new(todo: String, prio:usize) -> TDItem {
         let p_level = Priority::new(prio);
-        TDItem { done: ' ', todo, prio: Priority{level:p_level}}
+        TDItem { done: " ".truecolor(50, 50, 50), todo, prio: Priority{level:p_level}}
     }
     
 }
@@ -77,8 +82,15 @@ impl Priority {
     
 }
 
+enum Sorted {
+    done,
+    undone,
+    priority
+}
+
 enum CommandArgs {
     Get,
+    Sort,
     Todo,
     Add(String, usize),
     Done(usize),
@@ -94,6 +106,7 @@ enum  Command {
     Quit,
     Remove,
     Update,
+    Sort,
     Invalid,
 }
 
@@ -108,6 +121,7 @@ fn main() {
         "done" => CommandArgs::Done(args[2].parse().expect("Error converting to Interger")),
         "remove" => CommandArgs::Remove(args[2].parse().expect("Error converting to Interger")),
         "update" => CommandArgs::Update(args[2].parse().unwrap(), args[3].clone()),
+        "sorted" => CommandArgs::Sort,
         _ => panic!("You must provide an accepted command!")
 
     };
@@ -132,6 +146,7 @@ fn main() {
     
     match cmd {
         CommandArgs::Get => todo_list.print(),
+        CommandArgs::Sort=> todo_list.sorted(),
         CommandArgs::Add(todo, p_level) => {
             todo_list.append(todo.to_string(), p_level);
             todo_list.print()
@@ -151,12 +166,13 @@ fn main() {
         CommandArgs::Todo => {
             println!("Rust🦀 todo app");
             loop {
-                println!("    L --{}    L --{}    L --{}    L --{}    L --{}    L --{}",
+                println!("    L --{}    L --{}    L --{}    L --{}    L --{}    L --{}    L --{}",
                         "get".green(),
                         "add".green(),
                         "done".green(),
                         "remove".green(),
                         "update".green(),
+                        "sorted".green(),
                         "quit".red());
                 let cmd = cmd_from_user(input());
 
@@ -169,7 +185,7 @@ fn main() {
                         loop {
                             print_header("add");
                             println!("{} / {}", "-[ ] add task".yellow(), "-n".red());
-                            println!("{} 1 - 🟥{}    2 - 🟪{}    3 - 🟦{}   4 - ⬜️{}", "Priority Level:".yellow()
+                            println!("{} 1 - 🟥 {}    2 - 🟪 {}    3 - 🟦 {}   4 - ⬜️ {}", "Priority Level:".yellow()
                                                                      , "high".red()
                                                                      , "meduim".purple()
                                                                      , "low".blue()
@@ -243,6 +259,18 @@ fn main() {
                             // BUG N IS LARGER THAN LEN OF LIST
                         }
                     },
+                    Command::Sort => {
+                        loop {
+                            print_header("sorted by priority");
+                            let sorted_q = input();
+                            match sorted_q {
+                                Sorted::done => println!("done"),
+                                "undone" => println!("undone"),
+                                "priority" => println!("priority"),
+                                "_" => panic!()
+                            }
+                        }
+                    }
                     Command::Invalid => todo_list.print(),
                 }
 
@@ -273,8 +301,10 @@ fn cmd_from_user(s: String) -> Command {
         "quit" => Command::Quit,
         "remove" => Command::Remove,
         "update" => Command::Update,
+        "sorted" => Command::Sort,
         _ => Command::Invalid
 
     };
     return cmd;
 }
+
