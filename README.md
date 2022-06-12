@@ -16,5 +16,5 @@ docker run --name pg-dev -e POSTGRES_PASSWORD=340834 -p 5432:5432 postgres:alpin
 ```
 **optional psql (other terminal)**
 ```sh
-docker exec -it postgres pg-dev psql
+docker exec -it -U postgres pg-dev psql
 ```
