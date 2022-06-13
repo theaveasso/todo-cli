@@ -8,3 +8,13 @@
 - [x] ~~Implement a comman for changing the task description~~
 - [ ] Implement a custom sort command (Priority, Due date ...)
 - [ ] Implement a cPush task data to a todo.data
+
+## Database
+**Start the database**
+```sh
+docker run --name pg-dev -e POSTGRES_PASSWORD=340834 -p 5432:5432 postgres:alpine
+```
+**optional psql (other terminal)**
+```sh
+docker exec -it -U postgres pg-dev psql
+```
